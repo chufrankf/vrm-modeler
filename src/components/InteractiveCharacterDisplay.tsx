@@ -3,47 +3,80 @@ import { useControls } from 'leva'
 import { SingleCharacterDisplay } from './SingleCharacterDisplay'
 import { CharacterModelContext, CharacterModelState } from '../contexts/CharacterModel'
 
-type AllPoses = {
+type PoseUrls = {
     [x: string]: string
 }
-const getAllPoses = (): Promise<AllPoses> => new Promise ((resolve, reject) => {
-    fetch("/poses/allposes.json", {
+const getAllPoses = (): Promise<PoseUrls> => new Promise ((resolve, reject) => {
+    fetch("/poses/poseUrls.json", {
         headers : { 
             'Content-Type': 'application/json',
             'Accept': 'application/json'
         }
     })
     .then( response => response.json() )
-    .then( (data: AllPoses ) => {
+    .then( (data: PoseUrls ) => {
         resolve(data);
     })
     .catch(reject)
 })
 
+type ClothingUrls = {
+    [x:string] : {
+        bodyType: string,
+        urls: {
+            [x: string]: string
+        }
+    }
+}
+const getClothingUrls = (): Promise<ClothingUrls> => new Promise ((resolve, reject) => {
+    fetch("/clothes/clothingUrls.json", {
+        headers : { 
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        }
+    })
+    .then( response => response.json() )
+    .then( (data: ClothingUrls) => {
+        resolve(data);
+    })
+    .catch(reject);
+})
+
 export function InteractiveCharacterDisplay() {
     const { characterModelState, setCharacterModelState } = React.useContext(CharacterModelContext)
-    const [ poseUrlMap, setPoseUrlMap ] = React.useState<AllPoses>({'default':'/poses/pose.test.json'})
+    const [ poseUrlMap, setPoseUrlMap ] = React.useState<PoseUrls>({'default':'/poses/pose.test.json'})
+    const [ clothingUrlsMap, setClothingUrlsMap ] = React.useState<ClothingUrls>({
+        default: {
+            bodyType: "shirt_pants",
+            urls: {}
+        }
+    })
 
-    const [ values, set ] = useControls(() => ({
+    const [ values ] = useControls(() => ({
         pose: {
             value: 'default',
-            options: { ...Object.fromEntries(Object.entries(poseUrlMap).map(([k]) => [k, k])) }
+            options: { ...Object.fromEntries(Object.entries(poseUrlMap).map(([k]) => [k, k]))}
         },
-        clothes: {
-            value: 'butterfly',
-            options: { 'default': 'default', 'butterfly': 'butterfly' }
+        outfit: {
+            value: 'default',
+            options: { ...Object.fromEntries(Object.entries(clothingUrlsMap).map(([k]) => [k, k]))}
         }
-    }), [poseUrlMap])
+    }), [poseUrlMap, clothingUrlsMap])
 
     React.useEffect( () => {
-        getAllPoses().then((allPoses) => {
-            setPoseUrlMap( allPoses )
+        Promise.all([
+            getAllPoses(),
+            getClothingUrls()
+        ]).then( ([ poseUrls, clothingUrls ]) => {
+            setPoseUrlMap( poseUrls );
+            setClothingUrlsMap( clothingUrls );
         })
     }, [])
 
     React.useEffect( () => {
         let nextState: Partial<CharacterModelState> = {}
         nextState.poseUrl = poseUrlMap[values.pose]
+        nextState.materials = new Map( Object.entries(clothingUrlsMap[values.outfit].urls) )
         setCharacterModelState(prevState => ({
             ...prevState,
             ...nextState
