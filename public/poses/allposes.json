@@ -1,0 +1,6 @@
+{
+    "default": "/poses/pose.test.json",
+    "idle0" : "/poses/idle0.json",
+    "idle1" : "/poses/idle1.json",
+    "idle2" : "/poses/idle2.json"
+}
