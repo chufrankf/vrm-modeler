@@ -1,7 +1,9 @@
 {
     "default": {
         "bodyType": "shirt_pants",
-        "urls": {}
+        "urls": {
+            "Tops": "/clothes/shirts/white-shirt.png"
+        }
     },
     "butterfly": {
         "bodyType": "shirt_pants",
@@ -9,10 +11,10 @@
             "Tops": "/clothes/shirts/purple-butterfly.png"
         }
     },
-    "offshoulder": {
+    "blackShirt": {
         "bodyType": "shirt_pants",
         "urls": {
-            "Tops": "/clothes/shirts/offshoulder.png"
+            "Tops": "/clothes/shirts/black-shirt.png"
         }
     }
 }

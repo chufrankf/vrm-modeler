@@ -12,7 +12,7 @@ export const SingleCharacterDisplay: React.FC = (props) => {
     const camera = React.useRef<THREE.PerspectiveCamera>()
 
     const displayVRM = React.useRef<VRM>();
-    const { characterVRM } = React.useContext(CharacterModelContext)
+    const { characterMeshes } = React.useContext(CharacterModelContext)
 
     React.useEffect(() => {
         window.addEventListener("resize", handleWindowResize);
@@ -58,12 +58,12 @@ export const SingleCharacterDisplay: React.FC = (props) => {
     }, [])
 
     React.useEffect(() => {
-        if( characterVRM.value && scene.current ) {
+        if( characterMeshes && characterMeshes.vrm && scene.current ) {
             if( displayVRM.current ) {
                 scene.current.remove( displayVRM.current.scene );
             }
-            console.log("adding character vrm to scene", characterVRM.id);
-            displayVRM.current = characterVRM.value
+            console.log("adding character vrm to scene", characterMeshes.id);
+            displayVRM.current = characterMeshes.vrm
 
             // Set to middle of screen
             // Deeper into the screen is +z
@@ -72,7 +72,7 @@ export const SingleCharacterDisplay: React.FC = (props) => {
             displayVRM.current.scene.position.set(0.1, 0.3, 0);
             scene.current.add( displayVRM.current.scene );
         }
-    }, [scene.current, characterVRM.id])
+    }, [scene.current, characterMeshes.id])
 
     
     const handleWindowResize = () => {
